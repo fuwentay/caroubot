@@ -1,4 +1,3 @@
-# TODO: Iterate for different items. Select name and brand based on image name.
 # TODO: Generate caption and description based on image and pipe it to the function
 
 # Import libraries
@@ -22,6 +21,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
+import requests
+import json
+
 # Load API Keys
 load_dotenv()
 
@@ -38,7 +40,6 @@ def list_filenames():
     file for file in os.listdir("C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/")
     ]
     return to_list_photos
-
 # list_filenames()
 
 # To extract title, brand & price from file name
@@ -46,15 +47,53 @@ def extract_info(filename):
     info = filename.split(".")[0]
     [title, brand, price] = info.split(";")
     return [title, brand, price]
+# extract_info(list_filenames()[0]) returns a list of [listing_name, brand, price]
 
-# extract_info(list_filenames()[0])
+# To generate description for the listing
+# TODO: take in additional information
+def gen_caption(info):
+    # Load OpenAI API Key
+    load_dotenv()
+
+    # Define your query
+    query = "Can you help me generate a description for an item that I'm trying to sell? No need to converse with me, just the description is needed. Some info are as follows: \n The item is a " + info[0] + ", it's brand is " + info[1] + ", and it's price is " + info[2]
+
+    # Set up the API endpoint
+    url = 'https://api.openai.com/v1/chat/completions'
+
+    # Set your OpenAI API key
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': os.getenv('OpenAI_API_Key')
+    }
+
+    # Create the payload
+    data = {
+        'model': 'gpt-3.5-turbo',
+        'messages': [
+            {'role': 'system', 'content': 'You are a helpful assistant.'},
+            {'role': 'user', 'content': query}
+        ]
+    }
+
+    # Send the POST request
+    response = requests.post(url, headers=headers, json=data)
+    result = json.loads(response.text)
+
+    if 'choices' in result:
+        reply = result['choices'][0]['message']['content']
+        return reply
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+# caption = gen_caption(["Russell Westbrook NBA Jersey", "NBA", "$95"])
+# caption = gen_caption(extract_info(list_filenames()[0]))
+# print(caption)
 
 # To shift file from "to list" to "listed" after it has been uploaded
 def shift_file():
     file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
     new_file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/listed/"
     shutil.move(file_path, new_file_path)
-
 # shift_file()
 
 # Automate the login process. It is defined as a stand-alone function to be called when force logged out
@@ -140,7 +179,6 @@ def sell_listing(driver):
     # Select "Listing Title"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[2]/div/div/div/input")
     actions = ActionChains(driver)
-    # FIXME: ugly can be improved
     actions.send_keys(extract_info(list_filenames()[0])[0])
     actions.perform()
 
@@ -159,6 +197,18 @@ def sell_listing(driver):
     # Select "Size"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[5]/div/div/div/div/input")
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[5]/div/div[2]/div/div[4]/div/div/p")
+
+    time.sleep(3)
+
+    # Select "Description"
+    # This picks colour
+    # click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[8]/div/div/div[1]")
+    driver.find_elements(By.CSS_SELECTOR, 'textarea')[1].click()
+    actions = ActionChains(driver)
+    actions.send_keys(gen_caption(extract_info(list_filenames()[0])))
+    actions.perform() 
+
+    time.sleep(3)
 
     # Select "Disable 'Buy' button"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[5]/div[2]/div/button[2]/p[1]")
@@ -195,6 +245,7 @@ def sell_listing(driver):
 
     time.sleep(10)    
 
+# FIXME: Don't make it re-login or the ReCAPTCHA will re-appear
 while len(list_filenames())>0:
     driver = webdriver.Chrome()
     login(driver)
