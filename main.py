@@ -1,4 +1,3 @@
-# TODO: Publish onto a private repo to ensure u have git history. But remove passwords first.
 # TODO: Iterate for different items. Select name and brand based on image name.
 # TODO: Generate caption and description based on image and pipe it to the function
 
@@ -23,16 +22,40 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
-# TODO: store credentials in .env and test if it works
-# load API Keys
+# Load API Keys
 load_dotenv()
 
-# Function to click on the element based on the given xpath
+# To click on the element based on the given xpath
 def click_element_by_xpath(driver, xpath):
     element = driver.find_element(By.XPATH, xpath)
     element.click()
     # Add a short delay to allow the page to load
-    time.sleep(3)  
+    time.sleep(3)
+
+# To list all the file names in the folder
+def list_filenames():
+    to_list_photos = [
+    file for file in os.listdir("C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/")
+    ]
+    return to_list_photos
+
+# list_filenames()
+
+# To extract title, brand & price from file name
+def extract_info(filename):
+    info = filename.split(".")[0]
+    [title, brand, price] = info.split(";")
+    return [title, brand, price]
+
+# extract_info(list_filenames()[0])
+
+# To shift file from "to list" to "listed" after it has been uploaded
+def shift_file():
+    file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
+    new_file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/listed/"
+    shutil.move(file_path, new_file_path)
+
+# shift_file()
 
 # Automate the login process. It is defined as a stand-alone function to be called when force logged out
 def login(driver):
@@ -92,7 +115,7 @@ def login(driver):
 
 def sell_listing(driver):
     # Upload images
-    path = r"C:\Users\fuwen\OneDrive - NUS High School\Documents\Projects\carousell\images\oxfordhoodie.jpg"
+    path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
     # XPATH was taken from element with input tag and type="file"
     select_photos = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/main/div/div/div/div[1]/div[1]/div[2]/label/input")
     select_photos.send_keys(path)
@@ -117,8 +140,8 @@ def sell_listing(driver):
     # Select "Listing Title"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[2]/div/div/div/input")
     actions = ActionChains(driver)
-    # TODO: Take title from Excel
-    actions.send_keys("Oxford Hoodie")
+    # FIXME: ugly can be improved
+    actions.send_keys(extract_info(list_filenames()[0])[0])
     actions.perform()
 
     # Select "Brand"
@@ -130,8 +153,7 @@ def sell_listing(driver):
 
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[4]/div/div/div/input")
     actions = ActionChains(driver)
-    # TODO: Take brand from Excel
-    actions.send_keys("Oxford Hoodie")
+    actions.send_keys(extract_info(list_filenames()[0])[1])
     actions.perform()    
 
     # Select "Size"
@@ -164,8 +186,7 @@ def sell_listing(driver):
     # Indicate price
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[7]/div[3]/div[1]/div/div/input")
     actions = ActionChains(driver)
-    # TODO: Take price from Excel
-    actions.send_keys("$12")
+    actions.send_keys(extract_info(list_filenames()[0])[2])
     actions.perform()
 
     # Select "List now"
@@ -174,6 +195,10 @@ def sell_listing(driver):
 
     time.sleep(10)    
 
-driver = webdriver.Chrome()
-login(driver)
-sell_listing(driver)
+while len(list_filenames())>0:
+    driver = webdriver.Chrome()
+    login(driver)
+    # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
+    extract_info(list_filenames()[0])
+    sell_listing(driver)
+    shift_file()
