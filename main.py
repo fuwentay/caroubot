@@ -1,4 +1,5 @@
 # TODO: Generate caption and description based on image and pipe it to the function
+# TODO: Location did not work on second try
 
 # Import libraries
 import boto3
@@ -245,11 +246,24 @@ def sell_listing(driver):
 
     time.sleep(10)    
 
-# FIXME: Don't make it re-login or the ReCAPTCHA will re-appear
+# TODO: Sell button to bring us back to the sell menu
+def click_sell(driver):
+        click_element_by_xpath(driver, "/html/body/div[1]/div[2]/header/div/div/div/div[3]/a")
+
+# while len(list_filenames())>0:
+#     driver = webdriver.Chrome()
+#     login(driver)
+#     # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
+#     extract_info(list_filenames()[0])
+#     sell_listing(driver)
+#     shift_file()
+
+# FIXME: Don't make it re-login or the ReCAPTCHA will re-appear. Just call login once. 
+driver = webdriver.Chrome()
+login(driver)
 while len(list_filenames())>0:
-    driver = webdriver.Chrome()
-    login(driver)
     # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
     extract_info(list_filenames()[0])
     sell_listing(driver)
     shift_file()
+    click_sell(driver)
