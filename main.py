@@ -1,7 +1,3 @@
-# TODO: Generate caption and description based on image and pipe it to the function
-# TODO: Location did not work on second try. i think maybe because the location is saved already no need to redo the thing
-    # Try upload, if cannot then click the location button
-
 # Import libraries
 import boto3
 import os
@@ -42,17 +38,16 @@ def list_filenames():
     file for file in os.listdir("C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/")
     ]
     return to_list_photos
-# list_filenames()
 
 # To extract title, brand & price from file name
 def extract_info(filename):
     info = filename.split(".")[0]
     [title, brand, price] = info.split(";")
     return [title, brand, price]
-# extract_info(list_filenames()[0]) returns a list of [listing_name, brand, price]
 
+# TODO: take in additional information (e.g. torn, stains, etc.)
+# TODO: prompt engineer to get rid of dialogue
 # To generate description for the listing
-# TODO: take in additional information. if "" are present, take set caption as text in "".
 def gen_caption(info):
     # Load OpenAI API Key
     load_dotenv()
@@ -87,16 +82,12 @@ def gen_caption(info):
         return reply
     else:
         print(f"Error: {response.status_code} - {response.text}")
-# caption = gen_caption(["Russell Westbrook NBA Jersey", "NBA", "$95"])
-# caption = gen_caption(extract_info(list_filenames()[0]))
-# print(caption)
 
 # To shift file from "to list" to "listed" after it has been uploaded
 def shift_file():
     file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
     new_file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/listed/"
     shutil.move(file_path, new_file_path)
-# shift_file()
 
 # Automate the login process. It is defined as a stand-alone function to be called when force logged out
 def login(driver):
@@ -154,7 +145,10 @@ def login(driver):
     # Time wait here is to solve ReCAPTCHA
     time.sleep(17)
 
-def sell_listing(driver):
+# Broke up the sell_listing function into 3 parts (start, mid and end) so that we can choose to only call part of the sequence subsequently. This is because after 
+# the first iteration of putting up the listing, the location information is saved. Therefore, there is no need to use the same actions again. It would de-select the 
+# location instead. 
+def sell_listing_start(driver):
     # Upload images
     path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
     # XPATH was taken from element with input tag and type="file"
@@ -214,20 +208,26 @@ def sell_listing(driver):
     # Select "Meet-up"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/label/div/p")
     
+def sell_listing_mid(driver):
     # Select location
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/div[1]/div/div/div/input")
+
     actions = ActionChains(driver)
     actions.send_keys("Bishan MRT Interchange")
     actions.perform()
+
     # Time sleep for dropdown menu to load
     time.sleep(5)
+
     # Select "Bishan MRT Interchange"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/div[1]/div[2]/div/div[2]/div/p[1]")
     print("Selected location successfully.")
+
     # Close dropdown menu
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/label/div/p")
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/label/div/p")
 
+def sell_listing_end(driver):
     # Indicate price
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[7]/div[3]/div[1]/div/div/input")
     actions = ActionChains(driver)
@@ -238,37 +238,42 @@ def sell_listing(driver):
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[2]/button")
     print("Listed successfully.")
 
-    time.sleep(3)    
+    time.sleep(3)   
 
-# TODO: Sell button to bring us back to the sell menu
-def click_sell(driver):
-    click_element_by_xpath(driver, "/html/body/div[1]/div[2]/header/div/div/div/div[3]/a")
-
+# Clicks location box only
 def select_location(driver):
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/div[1]/div/div/div/input")
 
-# driver = webdriver.Chrome()
-# login(driver)
-# while len(list_filenames())>0:
-#     # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
-#     extract_info(list_filenames()[0])
-#     sell_listing(driver)
-#     shift_file()
-#     click_sell(driver)
+# Action sequence for the first iteration only. We want to click the dropdown menu.
+def sell_listing_initial(driver):
+    sell_listing_start(driver)
+    sell_listing_mid(driver)
+    sell_listing_end(driver)
 
-# TODO: after first iteration don't select the location again
-driver = webdriver.Chrome()
-login(driver)
-# To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
-extract_info(list_filenames()[0])
-sell_listing(driver)
-shift_file()
-click_sell(driver)
-while len(list_filenames())>0:
+# Action sequence for subsequent iterations. We want to only click the meet-up box.
+def sell_listing_subsequent(driver):
+    sell_listing_start(driver)
+    select_location(driver)
+    sell_listing_end(driver)    
+
+# Bring you back to the listing menu
+def click_sell(driver):
+    click_element_by_xpath(driver, "/html/body/div[1]/div[2]/header/div/div/div/div[3]/a")
+
+# Invoke functions
+def handler():
+    driver = webdriver.Chrome()
+    login(driver)
     # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
     extract_info(list_filenames()[0])
-    sell_listing(driver)
+    sell_listing_initial(driver)
     shift_file()
-    select_location(driver)
     click_sell(driver)
-    
+    while len(list_filenames())>0:
+        # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
+        extract_info(list_filenames()[0])
+        sell_listing_subsequent(driver)
+        shift_file()
+        click_sell(driver)
+
+handler()
