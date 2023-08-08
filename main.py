@@ -1,5 +1,6 @@
 # TODO: Generate caption and description based on image and pipe it to the function
-# TODO: Location did not work on second try
+# TODO: Location did not work on second try. i think maybe because the location is saved already no need to redo the thing
+    # Try upload, if cannot then click the location button
 
 # Import libraries
 import boto3
@@ -51,7 +52,7 @@ def extract_info(filename):
 # extract_info(list_filenames()[0]) returns a list of [listing_name, brand, price]
 
 # To generate description for the listing
-# TODO: take in additional information
+# TODO: take in additional information. if "" are present, take set caption as text in "".
 def gen_caption(info):
     # Load OpenAI API Key
     load_dotenv()
@@ -199,8 +200,6 @@ def sell_listing(driver):
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[5]/div/div/div/div/input")
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[5]/div/div[2]/div/div[4]/div/div/p")
 
-    time.sleep(3)
-
     # Select "Description"
     # This picks colour
     # click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[4]/div[8]/div/div/div[1]")
@@ -208,8 +207,6 @@ def sell_listing(driver):
     actions = ActionChains(driver)
     actions.send_keys(gen_caption(extract_info(list_filenames()[0])))
     actions.perform() 
-
-    time.sleep(3)
 
     # Select "Disable 'Buy' button"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[5]/div[2]/div/button[2]/p[1]")
@@ -222,14 +219,11 @@ def sell_listing(driver):
     actions = ActionChains(driver)
     actions.send_keys("Bishan MRT Interchange")
     actions.perform()
-
     # Time sleep for dropdown menu to load
     time.sleep(5)
-
     # Select "Bishan MRT Interchange"
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/div[1]/div[2]/div/div[2]/div/p[1]")
     print("Selected location successfully.")
-
     # Close dropdown menu
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/label/div/p")
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/label/div/p")
@@ -244,26 +238,37 @@ def sell_listing(driver):
     click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[2]/button")
     print("Listed successfully.")
 
-    time.sleep(10)    
+    time.sleep(3)    
 
 # TODO: Sell button to bring us back to the sell menu
 def click_sell(driver):
-        click_element_by_xpath(driver, "/html/body/div[1]/div[2]/header/div/div/div/div[3]/a")
+    click_element_by_xpath(driver, "/html/body/div[1]/div[2]/header/div/div/div/div[3]/a")
 
+def select_location(driver):
+    click_element_by_xpath(driver, "/html/body/div[1]/div[2]/main/div/div/div[2]/div[2]/form/div[1]/div[6]/div[5]/div/div[1]/div/div/div/input")
+
+# driver = webdriver.Chrome()
+# login(driver)
 # while len(list_filenames())>0:
-#     driver = webdriver.Chrome()
-#     login(driver)
 #     # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
 #     extract_info(list_filenames()[0])
 #     sell_listing(driver)
 #     shift_file()
+#     click_sell(driver)
 
-# FIXME: Don't make it re-login or the ReCAPTCHA will re-appear. Just call login once. 
+# TODO: after first iteration don't select the location again
 driver = webdriver.Chrome()
 login(driver)
+# To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
+extract_info(list_filenames()[0])
+sell_listing(driver)
+shift_file()
+click_sell(driver)
 while len(list_filenames())>0:
     # To extract title, brand & price of the first file in the folder. This sets up the parameters for the listing.
     extract_info(list_filenames()[0])
     sell_listing(driver)
     shift_file()
+    select_location(driver)
     click_sell(driver)
+    
