@@ -22,3 +22,6 @@ As for the generation of the descriptions, I used OpenAI's API for their LLM (Ch
 ## How it works
 To minimise the user input, the script would extract the respective information directly from the file name of the image.
 Once the listing has been uploaded, the image would be moved from the "to list" folder to the "listed" folder. This ensures that there are no duplicate listings! (Note that the script will upload all the images in the "to list" folder onto Carousell. There is currently NO scheduling implemented.)
+
+## Live Demo
+[Click here](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
