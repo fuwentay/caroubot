@@ -9,15 +9,15 @@ To help me with the clicking of buttons, I used Selenium to help me emulate a Ch
 As for the generation of the descriptions, I used OpenAI's API for their LLM (ChatGPT3.5-Turbo) to come up with engaging descriptions for me based on some descriptors.
 
 ## Inputs
-1. Image file with the file name of "[ListingTitle];[Brand];[Price].jpg/png".
-2. Save the image file under the "to list" folder.
-3. Run the script and a ChromeDriver would pop up (emulated Chrome browser).
-4. After logging in using your Carousell details, a CaPTCHA would load and you will have some time to complete it.
-5. Ta, da! Just sit back and watch the script do its thing!
+#### 1. Image file with the file name of "[ListingTitle];[Brand];[Price].jpg/png".
+#### 2. Save the image file under the "to list" folder.
+#### 3. Run the script and a ChromeDriver would pop up (emulated Chrome browser).
+#### 4. After logging in using your Carousell details, a CaPTCHA would load and you will have some time to complete it.
+#### 5. Ta, da! Just sit back and watch the script do its thing!
 
 ## To be changed by user
-1. File paths in main.py
-2. API key, Carousell Email & Password
+#### 1. File paths in main.py
+#### 2. API key, Carousell Email & Password
 
 ## How it works
 To minimise the user input, the script would extract the respective information directly from the file name of the image.
