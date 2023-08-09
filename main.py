@@ -77,9 +77,17 @@ def gen_caption(info):
     response = requests.post(url, headers=headers, json=data)
     result = json.loads(response.text)
 
+
     if 'choices' in result:
         reply = result['choices'][0]['message']['content']
+        # if ":" in reply:
+        #     reply = reply.split(":")[1]
+        if '"' in reply:
+            reply = reply.split('"')[1]
+        elif ':' in reply:
+            reply = reply.split(':')[1]
         return reply
+
     else:
         print(f"Error: {response.status_code} - {response.text}")
 
