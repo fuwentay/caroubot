@@ -35,7 +35,7 @@ def click_element_by_xpath(driver, xpath):
 # To list all the file names in the folder
 def list_filenames():
     to_list_photos = [
-    file for file in os.listdir("C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/")
+    file for file in os.listdir(os.getenv('to_list_path'))
     ]
     return to_list_photos
 
@@ -93,8 +93,8 @@ def gen_caption(info):
 
 # To shift file from "to list" to "listed" after it has been uploaded
 def shift_file():
-    file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
-    new_file_path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/listed/"
+    file_path = os.getenv('to_list_path') + list_filenames()[0]
+    new_file_path = os.getenv('listed_path')
     shutil.move(file_path, new_file_path)
 
 # Automate the login process. It is defined as a stand-alone function to be called when force logged out
@@ -158,7 +158,7 @@ def login(driver):
 # location instead. 
 def sell_listing_start(driver):
     # Upload images
-    path = "C:/Users/fuwen/OneDrive - NUS High School/Documents/Projects/carousell/to list/" + list_filenames()[0]
+    path = os.getenv('to_list_path') + list_filenames()[0]
     # XPATH was taken from element with input tag and type="file"
     select_photos = driver.find_element(By.XPATH, "/html/body/div[1]/div[2]/main/div/div/div/div[1]/div[1]/div[2]/label/input")
     select_photos.send_keys(path)

@@ -1,0 +1,12 @@
+# Carousell email and password
+CAROUSELL_EMAIL =
+CAROUSELL_PASSWORD = 
+
+# OpenAI API Key
+OpenAI_API_Key = ""
+
+# "to list" folder path
+to_list_path = ""
+
+# "listed" folder path
+listed_path = ""
