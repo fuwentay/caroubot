@@ -143,7 +143,7 @@ def login(driver):
 
     # TODO: try/except to wait till ReCAPTCHA solved
     # Time wait here is to solve ReCAPTCHA
-    time.sleep(17)
+    time.sleep(30)
 
 # Broke up the sell_listing function into 3 parts (start, mid and end) so that we can choose to only call part of the sequence subsequently. This is because after 
 # the first iteration of putting up the listing, the location information is saved. Therefore, there is no need to use the same actions again. It would de-select the 

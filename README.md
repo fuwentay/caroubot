@@ -30,4 +30,4 @@ To prevent robots from flooding and putting stress on servers, ReCAPTCHA was bui
 Based on which "Category" is chosen, the web structure would change meaning that the XPath of the elements would change. Thus, buttons and fields thereafter cannot be referenced by using the same identifier. As such, this code is not robust and only works for the "Category" of "Men's Activewear". What could be done is to identify elements by using the text contained within the element as it would not change when the web structure is different.
 
 ## Live Demo
-[Click here](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+[Click here](https://www.loom.com/share/4e4bde3216894a6299e6647071c2bb69?sid=8ff0832e-3e58-4e21-8fe8-7ae94397b9c9)
