@@ -15,8 +15,8 @@ As for the generation of the descriptions, I used OpenAI's API for their LLM (Ch
 #### 4. After logging in using your Carousell details, a CaPTCHA would load and you will have some time to complete it.
 #### 5. Ta, da! Just sit back and watch the script do its thing!
 
-## To be changed by user
-#### 1. File paths in main.py
+## To be changed by user (in .env)
+#### 1. File paths
 #### 2. API key, Carousell Email & Password
 
 ## How it works
